@@ -10,12 +10,13 @@ def gpioSetup():
     #Set PWM GPIOS for the motor controller
     gpio.setup(18, gpio.OUT)
     gpio.setup(17, gpio.OUT)
+    #due to mOne failing, mTwo is effectively the only functioning GPIO.
     global mOne
     mOne = gpio.PWM(18,1000)
     global mTwo
     mTwo = gpio.PWM(17,1000)
-    mOne.start(0)
-    mTwo.start(0)
+    mOne.start(2.9)
+    mTwo.start(2.88)
 #Execute when a connection has been established ot the MQTT server
 def connectionStatus(client, userdata, flags, rc):
     #Subscribe client to a topic
@@ -27,8 +28,24 @@ def messageDecoder(client, userdata, msg):
         message = msg.payload.decode(encoding='UTF-8')
         msg = int(message)
         print(msg)
-        mOne.ChangeDutyCycle(msg)
-        mTwo.ChangeDutyCycle(msg)
+        #ChangeDutyCycle changed the % Duty Cycle output by the raspberry pi
+        if msg==1:
+            mOne.ChangeDutyCycle(2.25)
+            mTwo.ChangeDutyCycle(3.3)
+        elif msg==2:
+            mOne.ChangeDutyCycle(2.6)
+            mTwo.ChangeDutyCycle(3.1)
+        elif msg==3:
+            mOne.ChangeDutyCycle(2.88)
+            mTwo.ChangeDutyCycle(2.88)
+        elif msg==4:
+            mOne.ChangeDutyCycle(3.2)
+            mTwo.ChangeDutyCycle(2.6)
+        elif msg==5:
+            mOne.ChangeDutyCycle(3.5)
+            mTwo.ChangeDutyCycle(2.25)
+        else:
+            print("?")
 #Set up RPI GPIO pins
 gpioSetup()
 
